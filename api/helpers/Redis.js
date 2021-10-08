@@ -43,7 +43,7 @@ module.exports = {
    * @param  {String} recordId - recordId to delete
    */
   deleteCacheForKey: function (cacheKey, recordId) {
-    if (!record) {
+    if (!recordId) {
       return Errors.invalidParamsError({ instance: recordId });
     }
 

@@ -56,7 +56,7 @@ module.exports = {
     try {
       await CacheService.createUpdateCacheEntry(key, value);
 
-      return Response.generateResponse('createCache', { updated: true });
+      return Response.generateResponse('updateCache', { updated: true });
     }
     catch (err) {
       LogService.logError(req, LOG_CATEGORY, '', '', err);
@@ -73,7 +73,7 @@ module.exports = {
   findOne: async function (req, res) {
     let key = req?.params?.id;
 
-    if (!key || !value) {
+    if (!key) {
       return ErrorService.sendError(res, Errors.badRequest({ detail: 'invalid arguments passed in request' }));
     }
 
@@ -115,7 +115,7 @@ module.exports = {
   deleteOne: async function (req, res) {
     let key = req?.params?.id;
 
-    if (!key || !value) {
+    if (!key) {
       return ErrorService.sendError(res, Errors.badRequest({ detail: 'invalid arguments passed in request' }));
     }
 
@@ -131,7 +131,7 @@ module.exports = {
   },
 
   /**
-   * Delete cache entries
+   * Delete all cache entries
    *
    * @param {Object} req The request object
    * @param {Object} res The response object
