@@ -21,6 +21,8 @@ module.exports = {
         trace: 4,
         debug: 5
       },
+      // Setup log level, overide by env config
+      level: _.get(global.app.config, 'logs.level', 'error'),
       // Setup logs format
       format: winston.format.combine(logFormat, winston.format.json()),
       transports: [new winston.transports.Console()]
@@ -46,7 +48,7 @@ module.exports = {
       error: error
     };
 
-    global.app.fastify.log.error(logObj);
+    app.fastify.log.error(logObj);
   },
 
   logInfo: function (request, category, info) {
@@ -60,6 +62,6 @@ module.exports = {
       info: info
     };
 
-    global.app.fastify.log.info(logObj);
+    app.fastify.log.info(logObj);
   }
 };

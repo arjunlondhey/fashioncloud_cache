@@ -10,6 +10,15 @@ module.exports = require('env-lift').load('fashion-cloud-app', {
 
   env: 'development',
 
+  cache: {
+    hosts: {
+      read: 'localhost'
+    },
+    commonOptions: {
+      port: 6379,
+      password: undefined
+    }
+  },
   // service logger
   logger: {
     error: {
@@ -31,5 +40,10 @@ module.exports = require('env-lift').load('fashion-cloud-app', {
     level: 'info'
   },
 
+  constants: {
+    CACHE_KEY: 'cache::key',
+    LOCK_TTL: 30000,
+    REDIS_EXPIRE_TTL: 5 * 60
+  },
   routes: {}
 });

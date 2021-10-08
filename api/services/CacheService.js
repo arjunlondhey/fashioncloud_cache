@@ -1,40 +1,11 @@
 const _ = require('lodash'),
-  Redlock = require('redlock'),
-  redisService = require('redis'),
   randomString = require('randomstring'),
-  redis = redisService.createClient({
-    host: '127.0.0.1',
-    port: '6379'
-  }),
+
   LogService = require('../services/LogService'),
   Redis = require('../helpers/Redis'),
-  CACHE_KEY = 'cache::key',
-  LOCK_TTL = 30000,
-  LOG_CATEGORY = 'CacheService',
-
-  // RedLock is required to provide atomicity on update/delete cache calls
-  redLock = new Redlock(
-    // you should have one client for each independent redis node
-    // or cluster
-    [redis],
-    {
-      // the expected clock drift; for more details
-      // see http://redis.io/topics/distlock
-      driftFactor: 0.01, // multiplied by lock ttl to determine drift time
-
-      // the max number of times Redlock will attempt
-      // to lock a resource before erroring
-      retryCount: 3,
-
-      // the time in ms between attempts
-      retryDelay: 200, // time in ms
-
-      // the max time in ms randomly added to retries
-      // to improve performance under high contention
-      // see https://www.awsarchitectureblog.com/2015/03/backoff.html
-      retryJitter: 200 // time in ms
-    }
-  );
+  CACHE_KEY = app.config.constants.CACHE_KEY,
+  LOCK_TTL = app.config.constants.LOCK_TTL,
+  LOG_CATEGORY = 'CacheService';
 
 
 module.exports = {
@@ -62,7 +33,7 @@ module.exports = {
         LogService.logInfo(LOG_CATEGORY, 'Cache hit');
       }
 
-      let lock = await redLock.lock(`${CACHE_KEY}::${recordId}`, LOCK_TTL);
+      let lock = await app.redLock.lock(`${CACHE_KEY}::${recordId}`, LOCK_TTL);
       // Need to lock the resource to update the cache for atomicity
       if (lock) {
         await Redis.updateCacheEntry(CACHE_KEY, recordId, record);
@@ -103,7 +74,7 @@ module.exports = {
    * @param  {String} recordId - recordId to delete
    */
   deleteCacheForKey: async function (recordId) {
-    let lock = await redLock.lock(`${CACHE_KEY}::${recordId}`, LOCK_TTL);
+    let lock = await app.redLock.lock(`${CACHE_KEY}::${recordId}`, LOCK_TTL);
     // Need to lock the resource to update the cache for atomicity
     if (lock) {
       Redis.deleteCacheForKey(CACHE_KEY, recordId);

@@ -1,6 +1,8 @@
 
 let _ = require('lodash'),
+  Redlock = require('redlock'),
   LogService = require('./api/services/LogService'),
+  RedisService = require('./api/services/RedisService'),
   fastify = require('fastify')({
     trustProxy: true,
     bodyLimit: 1048576 * 100, // 100 Mb
@@ -40,12 +42,34 @@ module.exports = async () => {
      */
     fastify.register(require('./config/routes'));
 
-    /**
-    * Initialize the ORM with db connection,
-    *
-    * and make sure db connection is successful
-    */
+    // Authentication Service initialize (Heimdal)
+    global.app.redis = await RedisService.getClient(_.get(environmentConfig, 'cache'));
 
+    // RedLock is required to provide atomicity on update/delete cache calls
+    global.app.redLock = new Redlock(
+      // you should have one client for each independent redis node
+      // or cluster
+      [global.app.redis],
+      {
+        // the expected clock drift; for more details
+        // see http://redis.io/topics/distlock
+        driftFactor: 0.01, // multiplied by lock ttl to determine drift time
+
+        // the max number of times Redlock will attempt
+        // to lock a resource before erroring
+        retryCount: 3,
+
+        // the time in ms between attempts
+        retryDelay: 200, // time in ms
+
+        // the max time in ms randomly added to retries
+        // to improve performance under high contention
+        // see https://www.awsarchitectureblog.com/2015/03/backoff.html
+        retryJitter: 200 // time in ms
+      }
+    );
+
+    global.app.redisUtil = RedisService.getRedisUtil();
     /* To allow connections from outside docker */
     let address = await global.app.fastify.listen('1337', '0.0.0.0');
 
