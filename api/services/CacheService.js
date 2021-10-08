@@ -5,7 +5,6 @@ const randomString = require('randomstring'),
   Errors = require('../helpers/Errors'),
 
   CACHE_KEY = app.config.constants.CACHE_KEY,
-  CACHE_EVAL_KEY = app.config.constants.CACHE_EVAL_KEY,
   LOCK_TTL = app.config.constants.LOCK_TTL,
   LOG_CATEGORY = 'CacheService';
 
@@ -46,11 +45,13 @@ module.exports = {
         LogService.logInfo(LOG_CATEGORY, 'Could not acquire lock');
       }
 
+      lock && await lock.unlock();
+
       return record;
     } catch (e) {
+      lock && await lock.unlock();
+
       return Promise.reject(e);
-    } finally {
-      await lock.unlock();
     }
   },
 
@@ -92,11 +93,13 @@ module.exports = {
         LogService.logInfo(LOG_CATEGORY, 'Could not acquire lock');
       }
 
+      lock && await lock.unlock();
+
       return;
     } catch (e) {
+      lock && await lock.unlock();
+
       return Promise.reject(e);
-    } finally {
-      await lock.unlock();
     }
 
   },
