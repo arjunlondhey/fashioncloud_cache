@@ -7,7 +7,9 @@
 const LogService = require('../services/LogService'),
   CacheService = require('../services/CacheService'),
   ErrorService = require('../services/ErrorService'),
+
   Response = require('../helpers/Response'),
+  Errors = require('../helpers/Errors'),
   LOG_CATEGORY = 'CacheController';
 
 module.exports = {
@@ -21,14 +23,15 @@ module.exports = {
     let key = req?.body?.id,
       value = req?.body?.value;
 
-    if (!key) {
-      res.send({ err: "Key not found" });
+    if (!key || !value) {
+      return ErrorService.sendError(res, Errors.badRequest({ detail: 'invalid arguments passed in request' }));
     }
+
 
     try {
       await CacheService.createUpdateCacheEntry(key, value);
 
-      return Response.generateResponse('createCache', { success: true });
+      return Response.generateResponse('createCache', { updated: true });
     }
     catch (err) {
       LogService.logError(req, LOG_CATEGORY, '', '', err);
@@ -43,12 +46,17 @@ module.exports = {
    * @param {Object} res The response object
    */
   update: async function (req, res) {
-    let key = req?.body?.id;
+    let key = req?.params?.id,
+      value = req?.body?.value;
+
+    if (!key || !value) {
+      return ErrorService.sendError(res, Errors.badRequest({ detail: 'invalid arguments passed in request' }));
+    }
 
     try {
       await CacheService.createUpdateCacheEntry(key, value);
 
-      return Response.generateResponse('createCache', { success: true });
+      return Response.generateResponse('createCache', { updated: true });
     }
     catch (err) {
       LogService.logError(req, LOG_CATEGORY, '', '', err);
@@ -65,8 +73,8 @@ module.exports = {
   findOne: async function (req, res) {
     let key = req?.params?.id;
 
-    if (!key) {
-      res.send({ err: "Key not found" });
+    if (!key || !value) {
+      return ErrorService.sendError(res, Errors.badRequest({ detail: 'invalid arguments passed in request' }));
     }
 
     try {
@@ -107,8 +115,8 @@ module.exports = {
   deleteOne: async function (req, res) {
     let key = req?.params?.id;
 
-    if (!key) {
-      return res.send({ err: "Key not found" });
+    if (!key || !value) {
+      return ErrorService.sendError(res, Errors.badRequest({ detail: 'invalid arguments passed in request' }));
     }
 
     try {

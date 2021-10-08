@@ -1,5 +1,4 @@
-const _ = require('lodash'),
-  randomString = require('randomstring'),
+const randomString = require('randomstring'),
 
   LogService = require('../services/LogService'),
   Redis = require('../helpers/Redis'),
@@ -20,7 +19,7 @@ module.exports = {
    */
   getCacheEntry: async function (recordId) {
     if (!recordId) {
-      return cb(null, []);
+      return Promise.reject(Errors.badRequest({ detail: 'invalid arguments passed in request' }));
     }
 
     try {
@@ -55,7 +54,7 @@ module.exports = {
    */
   createUpdateCacheEntry: function (recordId, value) {
     if (!recordId) {
-      return cb(null);
+      return Promise.reject(Errors.badRequest({ detail: 'invalid arguments passed in request' }));
     }
 
     return Redis.updateCacheEntry(CACHE_KEY, recordId, value);
@@ -75,6 +74,7 @@ module.exports = {
    */
   deleteCacheForKey: async function (recordId) {
     let lock = await app.redLock.lock(`${CACHE_KEY}::${recordId}`, LOCK_TTL);
+
     // Need to lock the resource to update the cache for atomicity
     if (lock) {
       Redis.deleteCacheForKey(CACHE_KEY, recordId);

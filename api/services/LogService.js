@@ -21,8 +21,6 @@ module.exports = {
         trace: 4,
         debug: 5
       },
-      // Setup log level, overide by env config
-      level: _.get(global.app.config, 'logs.level', 'error'),
       // Setup logs format
       format: winston.format.combine(logFormat, winston.format.json()),
       transports: [new winston.transports.Console()]
