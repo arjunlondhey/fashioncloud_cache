@@ -5,7 +5,7 @@ The repository presents multiple rest api endpoints to make CRUD operations via 
 Local Setup
 
 Install node.
-Clone the git repo: git clone https://github.com/arjunlondhey/fashioncloud_cache in your local working directory.
+Clone the git repo: git clone https://github.com/arjunlondhey/rest-endpoints-via-redis-cache in your local working directory.
 
 Run npm install.
 
