@@ -1,4 +1,4 @@
-# fashioncloud_cache
+# Rest Endpoints via cache
 The repository presents multiple rest api endpoints to make CRUD operations via cache.
 
 
